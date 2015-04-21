@@ -131,5 +131,5 @@ for i in range(0, len(FEED["entries"])):
     fh.write(product)
     fh.close()
 
-    store_seen(FEED.entries[i].link)
+    store_seen(FEED.entries[i].link, SEEN_FILE)
 
