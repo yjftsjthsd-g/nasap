@@ -54,11 +54,11 @@ def s_title(title):
 def mkheader(feedtitle, feedlink, itemtitle, itemlink, date, time):
     """builds a nice looking header consiting of some box drawing and infos"""
     ft, fl, it, il, d ,t = feedtitle, feedlink, itemtitle, itemlink, date, time
-    
+
     # calculate how much spacing we need so we can fill the lines nicely
     f_1 = " " * ( 76 - (len(ft[:53] + fl)) )
     f_2 = " " * ( 73 - (len(it[:53] + "..." + d + "-" + t) ) )
-    
+
     # building a five line header, two for content, three for style
     return u"┏━" + 76 * u"━"                                       + u"━┓\n" \
          + u"┃ " + ft[:53]           + f_1 + fl                    + u" ┃\n" \
@@ -98,13 +98,13 @@ else:
     open(SEEN_FILE, 'a').close()
 
 seen_links = open(SEEN_FILE).read()
-    
+
 # loop over the feed's items and process them
 for i in range(0, len(FEED["entries"])):
     # if we already processed the link earlier, skip processing it
     if FEED.entries[i].link in seen_links:
         continue
-    
+
     html = Document(urlopen(FEED.entries[i].link).read()).summary()
     body = convert(html, "plain", format="html", \
                    extra_args=["--reference-links", "--columns=80"])
@@ -123,8 +123,8 @@ for i in range(0, len(FEED["entries"])):
     fh = open(FEED_DIR + "/" + filename, "w")
     fh.write(product)
     fh.close()
-    
+
     sh = open(SEEN_FILE, 'a')
     sh.write(FEED.entries[i].link + "\n")
     sh.close()
-    
+
