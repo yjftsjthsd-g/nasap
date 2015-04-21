@@ -99,6 +99,13 @@ else:
 
 seen_links = open(SEEN_FILE).read()
 
+def store_seen(seenlink, SEEN_FILE):
+    """Store that a link has been seen"""
+    sh = open(SEEN_FILE, 'a')
+    sh.write(seenlink + "\n")
+    sh.close()
+
+
 # loop over the feed's items and process them
 for i in range(0, len(FEED["entries"])):
     # if we already processed the link earlier, skip processing it
@@ -124,7 +131,5 @@ for i in range(0, len(FEED["entries"])):
     fh.write(product)
     fh.close()
 
-    sh = open(SEEN_FILE, 'a')
-    sh.write(FEED.entries[i].link + "\n")
-    sh.close()
+    store_seen(FEED.entries[i].link)
 
