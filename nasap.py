@@ -22,6 +22,7 @@ from time    import gmtime, strftime
 import feedparser
 from   pypandoc import convert
 from   readability.readability import Document
+from multiprocessing import Process, Lock
 
 # functions
 def error(msg, code):
@@ -99,18 +100,20 @@ else:
 
 seen_links = open(SEEN_FILE).read()
 
-def store_seen(seenlink, SEEN_FILE):
+def store_seen(seenlink, SEEN_FILE, lock):
     """Store that a link has been seen"""
+    lock.acquire()
     sh = open(SEEN_FILE, 'a')
     sh.write(seenlink + "\n")
     sh.close()
+    lock.release()
 
 
-# loop over the feed's items and process them
-for i in range(0, len(FEED["entries"])):
+def process_link(lock, FEED, i):
+    """process a link, outputting its contents to a file and mark it as seen"""
     # if we already processed the link earlier, skip processing it
     if FEED.entries[i].link in seen_links:
-        continue
+        return #continue
 
     html = Document(urlopen(FEED.entries[i].link).read()).summary()
     body = convert(html, "plain", format="html", \
@@ -131,5 +134,9 @@ for i in range(0, len(FEED["entries"])):
     fh.write(product)
     fh.close()
 
-    store_seen(FEED.entries[i].link, SEEN_FILE)
+    store_seen(FEED.entries[i].link, SEEN_FILE, lock)
 
+# loop over the feed's items and process them
+lock = Lock()
+for i in range(0, len(FEED["entries"])):
+    Process(target=process_link, args=(lock, FEED, i)).start() #passing i is probably bad
