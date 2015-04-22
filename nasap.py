@@ -6,7 +6,8 @@
 This is a simple tool to fetch full text posts based on a RSS/Atom feed and
 store it as a simple textfile to later view it with a tool of your choice.
 
-git repo: https://github.com/phavx/nasap/
+upstream git repo: https://github.com/phavx/nasap/
+git repo: https://github.com/yjftsjthsd-g/nasap
 
 Information about AUTHORS, TODO and LICENSE can be found in the respective file
 """
@@ -17,12 +18,12 @@ from os      import environ, makedirs, path
 from urllib2 import urlopen
 from sys     import argv, exit
 from time    import gmtime, strftime
+from multiprocessing import Process, Lock
 
 # external dependencies
 import feedparser
 from   pypandoc import convert
 from   readability.readability import Document
-from multiprocessing import Process, Lock
 
 # functions
 def error(msg, code):
@@ -71,35 +72,6 @@ def mkfooter(itemlink):
     """adds footer containing link to the original source plus content links"""
     return "\n" + 80 * u"━" + "\nLinks:\n[*] " + itemlink
 
-# the basedir where all feed items will be stored
-NEWS_DIR = environ["HOME"] + "/news"
-
-# some basic sanity checks
-if not check_create_dir(NEWS_DIR):
-    error("Error: %s exists, but isn't a directory!" % NEWS_DIR, 1)
-
-if len(argv) != 2:
-    exit(1)
-
-URL = argv[1]
-REFERRER = "/".join(URL.split("/")[:3])
-FEED = feedparser.parse(URL, referrer=REFERRER)
-
-# if we don't already have a directory for this feed, create it
-FEED_DIR = NEWS_DIR + "/" + FEED.feed.title
-if not check_create_dir(FEED_DIR):
-    error("Error: feed directory %s could not be created." % FEED_DIR, 1)
-
-# list of links we've already seen so we can skip them
-SEEN_FILE = FEED_DIR + "/.seen.links"
-if path.exists(SEEN_FILE):
-    if not path.isfile(SEEN_FILE):
-        error("Error: %s needs to be a file." % SEEN_FILE, 1)
-else:
-    open(SEEN_FILE, 'a').close()
-
-seen_links = open(SEEN_FILE).read()
-
 def store_seen(seenlink, SEEN_FILE, lock):
     """Store that a link has been seen"""
     lock.acquire()
@@ -135,6 +107,35 @@ def process_link(lock, FEED, i):
     fh.close()
 
     store_seen(FEED.entries[i].link, SEEN_FILE, lock)
+
+# the basedir where all feed items will be stored
+NEWS_DIR = environ["HOME"] + "/news"
+
+# some basic sanity checks
+if not check_create_dir(NEWS_DIR):
+    error("Error: %s exists, but isn't a directory!" % NEWS_DIR, 1)
+
+if len(argv) != 2:
+    exit(1)
+
+URL = argv[1]
+REFERRER = "/".join(URL.split("/")[:3])
+FEED = feedparser.parse(URL, referrer=REFERRER)
+
+# if we don't already have a directory for this feed, create it
+FEED_DIR = NEWS_DIR + "/" + FEED.feed.title
+if not check_create_dir(FEED_DIR):
+    error("Error: feed directory %s could not be created." % FEED_DIR, 1)
+
+# list of links we've already seen so we can skip them
+SEEN_FILE = FEED_DIR + "/.seen.links"
+if path.exists(SEEN_FILE):
+    if not path.isfile(SEEN_FILE):
+        error("Error: %s needs to be a file." % SEEN_FILE, 1)
+else:
+    open(SEEN_FILE, 'a').close()
+
+seen_links = open(SEEN_FILE).read()
 
 # loop over the feed's items and process them
 lock = Lock()
