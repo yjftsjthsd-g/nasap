@@ -140,4 +140,5 @@ seen_links = open(SEEN_FILE).read()
 # loop over the feed's items and process them
 seenfile_lock = Lock()
 for i in range(0, len(FEED["entries"])):
-    Process(target=process_link, args=(seenfile_lock, FEED, i)).start() #passing i is probably bad
+    process_link(seenfile_lock, FEED, i)
+    #Process(target=process_link, args=(seenfile_lock, FEED, i)).start() #passing i is probably bad
