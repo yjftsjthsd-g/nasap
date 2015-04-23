@@ -16,6 +16,7 @@ Information about AUTHORS, TODO and LICENSE can be found in the respective file
 from io      import open
 from os      import environ, makedirs, path
 from urllib2 import urlopen
+#from urllib.request import urlopen #python3
 from sys     import argv, exit
 from time    import gmtime, strftime
 from multiprocessing import Process, Lock
@@ -28,7 +29,7 @@ from   readability.readability import Document
 # functions
 def error(msg, code):
     """prints an error message and exits the program with the given code"""
-    print msg
+    print(msg)
     exit(code)
 
 def current_date_time():
@@ -72,13 +73,13 @@ def mkfooter(itemlink):
     """adds footer containing link to the original source plus content links"""
     return "\n" + 80 * u"━" + "\nLinks:\n[*] " + itemlink
 
-def store_seen(seenlink, SEEN_FILE, lock):
+def store_seen(seenlink, SEEN_FILE, seenfile_lock):
     """Store that a link has been seen"""
-    lock.acquire()
+    seenfile_lock.acquire()
     sh = open(SEEN_FILE, 'a')
     sh.write(seenlink + "\n")
     sh.close()
-    lock.release()
+    seenfile_lock.release()
 
 
 def process_link(lock, FEED, i):
@@ -138,6 +139,6 @@ else:
 seen_links = open(SEEN_FILE).read()
 
 # loop over the feed's items and process them
-lock = Lock()
+seenfile_lock = Lock()
 for i in range(0, len(FEED["entries"])):
-    Process(target=process_link, args=(lock, FEED, i)).start() #passing i is probably bad
+    Process(target=process_link, args=(seenfile_lock, FEED, i)).start() #passing i is probably bad
