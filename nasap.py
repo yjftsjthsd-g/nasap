@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """nasap - news as simple as possible
@@ -15,8 +15,7 @@ Information about AUTHORS, TODO and LICENSE can be found in the respective file
 # standard libs
 from io      import open
 from os      import environ, makedirs, path
-from urllib2 import urlopen
-#from urllib.request import urlopen #python3
+from urllib.request import urlopen
 from sys     import argv, exit
 from time    import gmtime, strftime
 from multiprocessing import Process, Lock
@@ -63,15 +62,15 @@ def mkheader(feedtitle, feedlink, itemtitle, itemlink, date, time):
     f_2 = " " * ( 73 - (len(it[:53] + "..." + d + "-" + t) ) )
 
     # building a five line header, two for content, three for style
-    return u"┏━" + 76 * u"━"                                       + u"━┓\n" \
-         + u"┃ " + ft[:53]           + f_1 + fl                    + u" ┃\n" \
-         + u"┣━" + 57 * u"━"               + u"┳"  + 18 * u"━"     + u"━┫\n" \
-         + u"┃ " + it[:53]   + "..." + f_2 + u"┃ " +  d + " @" + t + u" ┃\n" \
-         + u"┗━" + 57 * u"━"               + u"┻"  + 18 * u"━"     + u"━┛\n\n"
+    return "┏━" + 76 * "━"                                       + "━┓\n" \
+         + "┃ " + ft[:53]           + f_1 + fl                    + " ┃\n" \
+         + "┣━" + 57 * "━"               + "┳"  + 18 * "━"     + "━┫\n" \
+         + "┃ " + it[:53]   + "..." + f_2 + "┃ " +  d + " @" + t + " ┃\n" \
+         + "┗━" + 57 * "━"               + "┻"  + 18 * "━"     + "━┛\n\n"
 
 def mkfooter(itemlink):
     """adds footer containing link to the original source plus content links"""
-    return "\n" + 80 * u"━" + "\nLinks:\n[*] " + itemlink
+    return "\n" + 80 * "━" + "\nLinks:\n[*] " + itemlink
 
 def store_seen(seenlink, SEEN_FILE, seenfile_lock):
     """Store that a link has been seen"""
